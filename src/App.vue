@@ -31,6 +31,11 @@ export default {
       deleteUser: true,
     };
   },
+  computed: {
+    sortedPeople: function() {
+      return this.person.sort((a, b) => a - b);
+    }
+  },
   methods: {
     remove: function(personId) {
       this.people.splice(personId, 1);
