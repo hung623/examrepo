@@ -1,11 +1,21 @@
 <template>
   <div>
-    <p>RG lunch list</p>
-    <li v-for="people in peoples, sortedPeople" :key="people.id">
-    {{ people.name }}
-    {{ formatString(people.counter) }}
-    <button v-if="people.edit = true" @click=" counter += 1">Made lunch!</button>
-    </li>
+    <div>
+      <p>RG lunch list</p>
+    </div>
+    <div>
+      <input type="form" v-model="newPerson">
+      <button type="button" @click="addNewPerson(newPerson)">submit new coworker </button>
+      <button @click="deleteUser = !deleteUser">Toggle between delete/made lunsj buttons</button>
+    </div>
+    <ul style="list-style: none;">
+      <li v-for="(person, id) in people" :key="person.id">
+      <p>{{ person.name }} times made lunch {{ person.counter }}
+      <button v-if="deleteUser" @click="updateData(person.counter++)">Made lunch!</button>
+      <button v-if="!deleteUser" @click="remove(id)">Delete a user</button>
+      </p>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -16,25 +26,35 @@ export default {
   name: "app",
   data: function() {
     return {
-      peoples: [],
-      counter: 0,
-      failure: ""
+      people: [],
+      newPerson: "",
+      deleteUser: true,
     };
   },
   computed: {
     sortedPeople: function() {
-      return this.counter.sort();
+      return this.person.sort((a, b) => a - b);
     }
   },
   methods: {
+    remove: function(personId) {
+      this.people.splice(personId, 1);
+      this.updateData();
+    },
+    addNewPerson: function(newPerson) {
+      this.people.push({ name: newPerson, counter: 0,});
+      this.newPerson = "";
+      console.log(this.people);
+      this.updateData();
+    },
     getPeople: function() {
       let self = this;
       axios
-        .get("https://api.jsonbin.io/b/5d11fe72c8516d4ebcbb3b16/1")
+        .get("//api.jsonbin.io/b/5d11fe72c8516d4ebcbb3b16/latest")
         .then(function(response) {
           // handle success
           console.log(response);
-          self.peoples = response.data;
+          self.people = response.data;
         })
         .catch(function(error) {
           // handle error
@@ -47,7 +67,7 @@ export default {
      updateData: function() {
       let self = this;
       axios
-        .put("https://api.jsonbin.io/b/5d11fe72c8516d4ebcbb3b16/1", self.peoples)
+        .put("//api.jsonbin.io/b/5d11fe72c8516d4ebcbb3b16", self.people)
         .then(function(response) {
           // handle success
           console.log(response);
